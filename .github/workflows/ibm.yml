@@ -1,5 +1,5 @@
 name: IBM Cloud Auto Restart
- 
+  
 on:
   push:
     branches: [ master ]
@@ -32,12 +32,22 @@ jobs:
       env:
         RESOURSE_ID: ${{ secrets.RESOURSE_ID }}
       run: |
-        ./IBM_Cloud_CLI/ibmcloud target -g "$RESOURSE_ID"
-        ./IBM_Cloud_CLI/ibmcloud target --cf
-        ./IBM_Cloud_CLI/ibmcloud cf install -v 6.51.0
-    - name: Restart IBM Cloud
-      env:
-        IBM_APP_NAME: ${{ secrets.IBM_APP_NAME }}
-      run: |
-        ./IBM_Cloud_CLI/ibmcloud cf restart "$IBM_APP_NAME"
- 
+        rm -rf ruby
+        rm -rf v2ray-cloudfoundry
+        git clone https://github.com/a132395/v2ray-cloudfoundry.git
+        chmod +x /home/runner/work/IBMYes/IBMYes/v2ray-cloudfoundry/v2ray/*
+        cd v2ray-cloudfoundry
+        sed -i "s/GetStartedGo/${{ secrets.IBM_APP_NAME }}/g"  /home/runner/work/IBMYes/IBMYes/v2ray-cloudfoundry/manifest.yml
+        #sed -i "s/8c35bef3-d51f-41ab-ac87-7b053410495b/${{ secrets.UUID }}/g"  /home/runner/work/IBMYes/IBMYes/v2ray-cloudfoundry/v2ray/config.json
+        #sed -i "s:/:${{ secrets.PATH }}:"  /home/runner/work/IBMYes/IBMYes/v2ray-cloudfoundry/v2ray/config.json
+        sed -i "s/128/256/g"  /home/runner/work/IBMYes/IBMYes/v2ray-cloudfoundry/manifest.yml
+        #cat /home/runner/work/IBMYes/IBMYes/v2ray-cloudfoundry/v2ray/config.json
+        cd /home/runner/work/IBMYes/IBMYes/
+        mv /home/runner/work/IBMYes/IBMYes/v2ray-cloudfoundry/ /home/runner/work/IBMYes/IBMYes/ruby/
+        mv /home/runner/work/IBMYes/IBMYes/ruby/v2ray/ /home/runner/work/IBMYes/IBMYes/ruby/ruby/
+        mv /home/runner/work/IBMYes/IBMYes/ruby/ruby/v2ray /home/runner/work/IBMYes/IBMYes/ruby/ruby/ruby
+        cd /home/runner/work/IBMYes/IBMYes/ruby/
+        /home/runner/work/IBMYes/IBMYes/IBM_Cloud_CLI/ibmcloud target -g "$RESOURSE_ID"
+        /home/runner/work/IBMYes/IBMYes/IBM_Cloud_CLI/ibmcloud target --cf
+        /home/runner/work/IBMYes/IBMYes/IBM_Cloud_CLI/ibmcloud cf install -v 6.51.0
+        /home/runner/work/IBMYes/IBMYes/IBM_Cloud_CLI/ibmcloud cf push
